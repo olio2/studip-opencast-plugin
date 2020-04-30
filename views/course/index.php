@@ -116,8 +116,30 @@ endif;
 global $perm;
 $sidebar = Sidebar::get();
 
+$actions = new ActionsWidget ();
+
+if ($can_schedule) {
+    $actions->addLink(
+        $_("Medien hochladen"),
+        $controller->url_for('course/upload'),
+        new Icon('upload', 'clickable'),
+        []
+    );
+
+    if (\Config::get()->OPENCAST_ALLOW_STUDIO) {
+        $actions->addLink($_("Video aufnehmen"),
+            URLHelper::getLink($config['service_url'] . '/studio/index.html', [
+                'cid' => null,
+                'upload.seriesId' => $connectedSeries[0]['series_id']
+            ]),
+            new Icon('video2', 'clickable'), [
+                'target' => '_blank'
+            ]
+        );
+    }
+}
+
 if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
-    $actions = new ActionsWidget ();
     $upload = '';
 
     if (!empty($connectedSeries)) {
@@ -133,35 +155,12 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
             new Icon('refresh', 'clickable')
         );
 
-        if ($can_schedule) {
-            $actions->addLink(
-                $_("Medien hochladen"),
-                $controller->url_for('course/upload'),
-                new Icon('upload', 'clickable'),
-                []
-            );
-
-            if (\Config::get()->OPENCAST_ALLOW_STUDIO) {
-                $actions->addLink($_("Video aufnehmen"),
-                    URLHelper::getLink($config['service_url'] . '/studio/index.html', [
-                        'cid' => null,
-                        'upload.seriesId' => $connectedSeries[0]['series_id']
-                    ]),
-                    new Icon('video2', 'clickable'), [
-                        'target' => '_blank'
-                    ]
-                );
-            }
-
-            // TODO: Schnittool einbinden - Passender Workflow kucken
-
-            if ($perm->have_perm('root')) {
-                $actions->addLink($_("Kursspezifischen Workflow konfigurieren"),
-                    $controller->url_for('course/workflow'),
-                    new Icon('admin', 'clickable'), [
-                        'data-dialog' => 'size=auto'
-                    ]);
-            }
+        if ($can_schedule && $perm->have_perm('root')) {
+            $actions->addLink($_("Kursspezifischen Workflow konfigurieren"),
+                $controller->url_for('course/workflow'),
+                new Icon('admin', 'clickable'), [
+                    'data-dialog' => 'size=auto'
+                ]);
         }
 
         if ($coursevis == 'visible') {
@@ -228,12 +227,12 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
                 ]);
         }
     }
-
-    $sidebar->addWidget($actions);
     Helpbar::get()->addPlainText('', $_("Hier sehen Sie eine Übersicht ihrer Vorlesungsaufzeichnungen. Sie können über den Unterpunkt Aktionen weitere Medien zur Liste der Aufzeichnungen hinzufügen. Je nach Größe der Datei kann es einige Zeit in Anspruch nehmen, bis die entsprechende Aufzeichnung in der Liste sichtbar ist. Weiterhin ist es möglich die ausgewählten Sichtbarkeit einer Aufzeichnung innerhalb der Veranstaltung direkt zu ändern."));
 } else {
     Helpbar::get()->addPlainText('', $_("Hier sehen Sie eine Übersicht ihrer Vorlesungsaufzeichnungen."));
 }
+
+$sidebar->addWidget($actions);
 
 Helpbar::get()->addLink('Bei Problemen: ' . $GLOBALS['UNI_CONTACT'], 'mailto:' . $GLOBALS['UNI_CONTACT'] . '?subject=[Opencast] Feedback');
 ?>
