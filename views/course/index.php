@@ -192,6 +192,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
             );
         }
 
+/*
         if ($controller->isDownloadAllowed()) {
             $actions->addLink(
                 $_("Downloads verhindern"),
@@ -205,7 +206,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
                 new Icon('download+accept', 'clickable')
             );
         }
-
+*/
     } else {
         $actions->addLink(
             $_('Neue Series anlegen'),
@@ -274,6 +275,7 @@ Helpbar::get()->addLink('Bei Problemen: ' . $GLOBALS['UNI_CONTACT'], 'mailto:' .
             </label>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             <? if ($multiconnected) : ?>
                 <label class="oc_muted">
                     <input type="radio" name="visibility" value="visible" disabled="disabled" style="float: left">
@@ -290,11 +292,18 @@ Helpbar::get()->addLink('Bei Problemen: ' . $GLOBALS['UNI_CONTACT'], 'mailto:' .
                 </label>
             <? endif ?>
 =======
+=======
+<? if($perm->have_perm('root')){ ?>
+>>>>>>> fdc9c5e... bremer Anforderungen (kein Download, nicht öffentlich)...
             <label>
                 <input type="radio" name="visibility" value="free">
                 <?= $_("Freigeben - Dieses Video ist für jeden sichtbar") ?>
             </label>
+<<<<<<< HEAD
 >>>>>>> 25f4aa3... Revert "bremer Anforderungen (kein Download, nicht öffentlich)..."
+=======
+<? } ?>
+>>>>>>> fdc9c5e... bremer Anforderungen (kein Download, nicht öffentlich)...
         </fieldset>
 
         <footer data-dialog-button>
