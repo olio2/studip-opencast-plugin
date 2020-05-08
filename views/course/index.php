@@ -273,6 +273,7 @@ Helpbar::get()->addLink('Bei Problemen: ' . $GLOBALS['UNI_CONTACT'], 'mailto:' .
                 </span>
             </label>
 
+<<<<<<< HEAD
             <? if ($multiconnected) : ?>
                 <label class="oc_muted">
                     <input type="radio" name="visibility" value="visible" disabled="disabled" style="float: left">
@@ -288,6 +289,12 @@ Helpbar::get()->addLink('Bei Problemen: ' . $GLOBALS['UNI_CONTACT'], 'mailto:' .
                     </span>
                 </label>
             <? endif ?>
+=======
+            <label>
+                <input type="radio" name="visibility" value="free">
+                <?= $_("Freigeben - Dieses Video ist für jeden sichtbar") ?>
+            </label>
+>>>>>>> 25f4aa3... Revert "bremer Anforderungen (kein Download, nicht öffentlich)..."
         </fieldset>
 
         <footer data-dialog-button>
