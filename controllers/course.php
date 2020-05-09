@@ -1010,7 +1010,8 @@ class CourseController extends OpencastController
         $seriesId = $series[0]->series_id;
         return \Opencast\Models\OCSeminarEpisodes::find([
             $seriesId,
-            $episodeId
+            $episodeId,
+	    $this->course_id
         ]);
     }
 
