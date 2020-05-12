@@ -21,7 +21,7 @@
                             <?= tooltipIcon($_('Aktueller Arbeitsschritt:') .' '. $instances[$episode->identifier]->operations->operation->description) ?>
                         </h2>
 
-                        <ul class="oce_contetlist">
+                        <ul class="oce_contentlist">
                             <li>
                                 <?= $_('Video wird verarbeitet...') ?>
                             </li>
@@ -32,7 +32,7 @@
                             </li>
                             <li>
                                 <?= $_('Beschreibung:') ?>
-                                <?= $item['description'] ? htmlReady($episode->description) : 'Keine Beschreibung vorhanden' ?>
+                                <?= $episode->description ? htmlReady($episode->description) : 'Keine Beschreibung vorhanden' ?>
                             </li>
                             <li>
                             </li>

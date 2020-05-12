@@ -63,6 +63,7 @@ if ($this->connectedSeries[0]['series_id']) :
 
     if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)
         && \Config::get()->OPENCAST_ALLOW_STUDIO
+        && $config['service_url'] . '/lti' != OpencastLTI::getSearchUrl($this->course_id)
     ) {
         $studio_lti_link = new LtiLink(
             $config['service_url'] . '/lti',
@@ -181,29 +182,41 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
         }
 
         if ($perm->have_perm('root')) {
-            $actions->addLink(
-                $can_schedule
-                    ? $_("Medienaufzeichnung verbieten")
-                    : $_("Medienaufzeichnung erlauben"),
-                PluginEngine::getLink('opencast/course/toggle_schedule/' . get_ticket()),
-                new Icon($can_schedule
-                    ? 'video'
-                    : 'video+decline', 'clickable')
-            );
+            if ($can_schedule) {
+                $actions->addLink(
+                    $_("Medienaufzeichnung verbieten"),
+                    PluginEngine::getLink('opencast/course/toggle_schedule/' . get_ticket()),
+                    new Icon('video+accept', 'clickable'), [
+                        title => $_('Die Medienaufzeichnung ist momentan erlaubt.')
+                    ]
+                );
+            } else {
+                $actions->addLink(
+                    $_("Medienaufzeichnung erlauben"),
+                    PluginEngine::getLink('opencast/course/toggle_schedule/' . get_ticket()),
+                    new Icon('video+decline', 'clickable'), [
+                        title => $_('Die Medienaufzeichnung ist momentan verboten.')
+                    ]
+                );
+            }
         }
 
 /*
         if ($controller->isDownloadAllowed()) {
             $actions->addLink(
-                $_("Downloads verhindern"),
+                $_("Downloads verbieten"),
                 PluginEngine::getLink('opencast/course/disallow_download/' . get_ticket()),
-                new Icon('download+decline', 'clickable')
+                new Icon('download+accept', 'clickable'), [
+                    title => $_('Downloads sind momentan erlaubt.')
+                ]
             );
         } else {
             $actions->addLink(
                 $_("Downloads erlauben"),
                 PluginEngine::getLink('opencast/course/allow_download/' . get_ticket()),
-                new Icon('download+accept', 'clickable')
+                new Icon('download+decline', 'clickable'), [
+                    title => $_('Downloads sind momentan verboten.')
+                ]
             );
         }
 */

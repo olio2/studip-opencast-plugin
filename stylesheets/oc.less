@@ -4,6 +4,7 @@
 @item-width : 25em;
 @item-height-small: auto;
 @item-width-small : 16em;
+@episode-background: #EEEEEE;
 
 .conf-form {
     padding-bottom: 19px;
@@ -127,10 +128,7 @@
 }
 
 .oc_flexepisodelist {
-    background: rgb(255, 255, 255) transparent;
-    background: rgba(255, 255, 255, 0.8);
     padding: 5ex;
-    background-color: #F3F5F8;
     margin-top: 1em;
     padding: 0.5em;
     height: auto;
@@ -138,9 +136,7 @@
 }
 
 .oce_playercontainer {
-    background: rgb(255, 255, 255) transparent;
-    background: rgba(255, 255, 255, 0.8);
-    background-color: #F3F5F8;
+    background: @episode-background;
     margin-top: 1em;
     padding-right: 1.5em;
     z-index: 1999;
@@ -191,7 +187,7 @@
     }
 }
 
-.oce_contetlist {
+.oce_contentlist {
     list-style-type: none;
     padding-left: 0;
 }
@@ -202,6 +198,20 @@
     list-style: none;
     overflow: auto;
     height: auto;
+
+    > li {
+        background: @episode-background;
+        border-right-width: 1px;
+        border-left-width: 1px;
+        border-width: 1px 0 0;
+        margin-bottom: 1em;
+        padding: 0 1em 0.5em 1em;
+        display: block;
+        position: relative;
+        overflow: hidden;
+        border-color: #ddd;
+        vertical-align: center;
+    }
 }
 
 .oce_wip {
@@ -215,7 +225,11 @@
         text-align: center;
 
         img {
+            position: absolute;
             height: 6em;
+            bottom: 50%;
+            transform: translateY(50%);
+            margin-left: -60px;
         }
     }
 }
@@ -233,18 +247,6 @@
 
 .oce_active_li {
     background-color: #F3F5F4;
-}
-
-.oce_list li {
-    border-right-width: 1px;
-    border-left-width: 1px;
-    border-width: 1px 0 0;
-    margin: 0;
-    display: block;
-    position: relative;
-    overflow: hidden;
-    border-color: #ddd;
-    vertical-align: center;
 }
 
 .oce_preview_container {
@@ -275,7 +277,8 @@
 }
 
 .ocplayerlink {
-    margin-left: @item-width;
+    display: inline-flex;
+    flex-wrap: wrap;
 }
 
 .oce_item {
@@ -382,9 +385,13 @@ textarea.oc_input:focus {
     white-space: normal;
 }
 
-.button.download:before,
-.button.ocextern:before,
-.button.ocspecial:before {
+.button.download::before,
+.button.ocextern::before,
+.button.oc_editor::before,
+.button.oc_delete::before,
+.button.oc_feedback::before,
+.button.oc_download_dialog::before,
+.button.ocspecial::before {
     content: " ";
     float: left;
     height: 16px;
@@ -478,6 +485,38 @@ textarea.oc_input:focus {
 
 .button.ocfree:hover {
     .icon('before', 'youtube', 'info_alt');
+}
+
+.button.oc_editor {
+    .icon('before', 'knife', 'clickable');
+}
+
+.button.oc_editor:hover {
+    .icon('before', 'knife', 'info_alt');
+}
+
+.button.oc_delete {
+    .icon('before', 'remove-circle', 'clickable');
+}
+
+.button.oc_delete:hover {
+    .icon('before', 'remove-circle', 'info_alt');
+}
+
+.button.oc_download_dialog {
+    .icon('before', 'download', 'clickable');
+}
+
+.button.oc_download_dialog:hover {
+    .icon('before', 'download', 'info_alt');
+}
+
+.button.oc_feedback {
+    .icon('before', 'chat', 'clickable');
+}
+
+.button.oc_feedback:hover {
+    .icon('before', 'chat', 'info_alt');
 }
 
 img.ocinvisible {
@@ -773,7 +812,6 @@ img.ocinvisible {
     }
 }
 
-
 @media only screen and (max-width: @major-breakpoint-large) {
     .oc_flexplaycontainer {
         width: 15em;
@@ -790,10 +828,17 @@ img.ocinvisible {
     .ocplayerlink {
         clear: both;
         margin-left: 0px;
+
+        .button {
+            text-indent: -9999px;
+            min-width: 40px;
+            white-space: nowrap;
+            padding-right: 6px;
+        }
     }
 }
 
-@media only screen and (max-width: @major-breakpoint-medium) {
+@media only screen and (max-width: @major-breakpoint-large) {
     .oc_flexplaycontainer {
         width: 100%;
     }
@@ -804,6 +849,13 @@ img.ocinvisible {
 
     .oce_playercontainer span.previewimage img.playbutton {
         max-height: 100px;
+    }
+
+    .ocplayerlink .button {
+        text-indent: -9999px;
+        min-width: 40px;
+        white-space: nowrap;
+        padding-right: 6px;
     }
 }
 
