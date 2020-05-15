@@ -123,7 +123,6 @@ $oc_acl=urlencode($oc_acl);
 
     <section class="hgroup">
         <label>
-            <?= $_('Eingestellter Workflow') ?>
 
             <? if (!$workflow) : ?>
                 <p style="color:red; max-width: 48em;">
@@ -131,18 +130,9 @@ $oc_acl=urlencode($oc_acl);
                         'Es wurde noch kein Standardworkflow eingestellt. Der Upload ist erst möglich nach Einstellung eines Standard- oder eines Kursspezifischen Workflows!'
                     ) ?>
                 </p>
-            <? else : ?>
-                <p><?= $workflow_text ?: $workflow['workflow_id'] ?></p>
             <? endif ?>
         </label>
 
-        <label>
-            <?= $_('Chunk-Größe für Uploads') ?>
-            <p><?= round(
-                $config['upload_chunk_size'] / 1024 / 1024,
-                2
-               ) ?> MB</p>
-        </label>
     </section>
 
     <label for="video_upload">

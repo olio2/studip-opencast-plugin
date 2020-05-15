@@ -122,11 +122,13 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
     $upload = '';
 
     if (!empty($connectedSeries)) {
+        if ($perm->have_perm('root')) {	
         $actions->addLink(
             $_("Verknüpfung aufheben"),
             PluginEngine::getLink('opencast/course/remove_series/' . get_ticket()),
             new Icon('trash', 'clickable')
         );
+        }
 
         if ($can_schedule) {
             $actions->addLink(
