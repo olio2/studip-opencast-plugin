@@ -150,16 +150,6 @@ $visibility_text = [
                                     </div>
                                 <? elseif ($GLOBALS['perm']->have_studip_perm('root', $course_id)) : ?>
                                     <? if (!empty($item['presenter_download'])
-<<<<<<< HEAD
-                                            || !empty($item['presentation_download'])
-                                            || !empty($item['audio_download'])
-                                        ) : ?>
-                                        <?= \Studip\LinkButton::create($_('Mediendownload (nur für root)'), '#', [
-                                                'class'           => 'oc_download_dialog',
-                                                'data-episode_id' => $item['id'],
-                                                'title'           => $_('Mediendownload (nur für root)')
-                                        ]); ?>
-=======
                                         || !empty($item['presentation_download'])
                                         || !empty($item['audio_download'])
                                     ) : ?>
@@ -172,7 +162,6 @@ $visibility_text = [
                                                 'title'           => $_('Mediendownload (nur für Lehrende)')
                                             ]
                                         ); ?>
->>>>>>> d3a74d332e1bc4a3b539657997b7be7821c67dc3
                                     <? endif ?>
                                     <div id="download_dialog-<?= $item['id'] ?>" title="<?= $_("Mediendownload") ?>"
                                          style="display: none;">
