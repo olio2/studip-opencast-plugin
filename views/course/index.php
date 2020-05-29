@@ -123,7 +123,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
     $upload  = '';
 
     if (!empty($connectedSeries)) {
-        if ($perm->have_perm('root')) {	
+        if ($GLOBALS['perm']->have_perm('root')) {	
         $actions->addLink(
             $_('Verknüpfung aufheben'),
             $controller->url_for('course/remove_series/' . get_ticket()),
@@ -302,7 +302,7 @@ Helpbar::get()->addLink('Bei Problemen: ' . $GLOBALS['UNI_CONTACT'], 'mailto:' .
                     <?= $_('Sichtbar - Für Teilnehmende dieser Veranstaltung sichtbar') ?>
                 </span>
             </label>
-<? if($perm->have_perm('root')){ ?>
+<? if($GLOBALS['perm']->have_perm('root')){ ?>
             <? if ($multiconnected) : ?>
                 <label class="oc_muted">
                     <input type="radio" name="visibility" value="free" disabled="disabled" style="float: left">
