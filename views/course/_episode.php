@@ -154,12 +154,12 @@ $visibility_text = [
                                         || !empty($item['audio_download'])
                                     ) : ?>
                                         <?= \Studip\LinkButton::create(
-                                            $_('Mediendownload (nur für Lehrende)'),
+                                            $_('Mediendownload (nur für root)'),
                                             '#',
                                             [
                                                 'class'           => 'oc_download_dialog',
                                                 'data-episode_id' => $item['id'],
-                                                'title'           => $_('Mediendownload (nur für Lehrende)')
+                                                'title'           => $_('Mediendownload (nur für root)')
                                             ]
                                         ); ?>
                                     <? endif ?>
