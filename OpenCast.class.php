@@ -58,7 +58,8 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
             if (OCModel::getConfigurationstate()) {
                 StudipFormat::addStudipMarkup('opencast', '\[opencast\]', '\[\/opencast\]', 'OpenCast::markupOpencast');
             }
-            NotificationCenter::addObserver($this, 'NotifyUserOnNewEpisode', 'NewEpisodeForCourse');
+	    //keine Notification im Bremen
+            //NotificationCenter::addObserver($this, 'NotifyUserOnNewEpisode', 'NewEpisodeForCourse');
         }
 
         $GLOBALS['opencast_already_loaded'] = true;
