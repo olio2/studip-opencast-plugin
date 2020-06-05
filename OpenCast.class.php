@@ -60,6 +60,7 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
             }
 	    //keine Notification im Bremen
             //NotificationCenter::addObserver($this, 'NotifyUserOnNewEpisode', 'NewEpisodeForCourse');
+            NotificationCenter::removeObserver($this);
         }
 
         $GLOBALS['opencast_already_loaded'] = true;
