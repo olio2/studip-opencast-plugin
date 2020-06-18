@@ -100,7 +100,7 @@ $visibility_text = [
                                 <?= Studip\LinkButton::create(
                                         $_('Feedback'),
                                         'mailto:' . 'opencast@elearning.uni-bremen.de' 
-                                            . '?subject=[Opencast] Feedback&body=%0D%0A%0D%0A%0D%0ALinks zum betroffenen Video:%0D%0A'
+                                            . '?subject=[Opencast] Feedback&body=Diese Mail geht an den Opencast Support, nicht an Dozierende.%0D%0A%0D%0A%0D%0ALinks zum betroffenen Video:%0D%0A'
                                             . $controller->link_for('course/index/' . $item['id']) ."%0D%0A"
                                             . $video_url . $item['id'],
                                         [
