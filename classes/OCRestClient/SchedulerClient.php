@@ -2,6 +2,7 @@
 
 use Opencast\Models\OCConfig;
 use Opencast\Models\OCScheduledRecordings;
+use Opencast\Configuration;
 
 class SchedulerClient extends OCRestClient
 {
@@ -28,14 +29,14 @@ class SchedulerClient extends OCRestClient
      *
      * @return bool success or not
      */
-    public function scheduleEventForSeminar($course_id, $resource_id, $termin_id)
+    public function scheduleEventForSeminar($course_id, $resource_id, $publishLive, $termin_id)
     {
         $ingest_client = new IngestClient();
         $media_package = $ingest_client->createMediaPackage();
         $metadata      = self::createEventMetadata($course_id, $resource_id, $termin_id, null);
         $media_package = $ingest_client->addDCCatalog($media_package, $metadata['dublincore']);
 
-        $result = $ingest_client->schedule($media_package, $metadata['device_capabilities'], $metadata['workflow']);
+        $result = $ingest_client->schedule($media_package, $metadata['device_capabilities'], $publishLive, $metadata['workflow']);
 
         if ($result
             && $result[1] != 400
@@ -167,7 +168,11 @@ class SchedulerClient extends OCRestClient
             $title = $issue_titles;
         }
 
-        $room = ResourceObject::Factory($resource_id);
+		if (StudipVersion::newerThan('4.4')) {
+        	$room = new Resource($resource_id);
+        } else {
+        	$room = ResourceObject::Factory($resource_id);
+        }
         $cas  = OCModel::checkResource($resource_id);
         $ca   = $cas[0];
 

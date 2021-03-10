@@ -42,8 +42,7 @@ class ApiEventsClient extends OCRestClient
         $cache_key = 'oc_episodesforseries/' . $series_id;
         $episodes  = $cache->read($cache_key);
 
-        if ($refresh || $episodes === false || $GLOBALS['perm']->have_perm('dozent')) {
-            $service_url = "/episode.json?sid=" . $series_id . "&q=&episodes=true&sort=&limit=0&offset=0";
+        if ($refresh || $episodes === false || $GLOBALS['perm']->have_perm('tutor')) {
             $service_url = '/?sign=false&withacl=false&withmetadata=false&withscheduling=false&withpublications=true&filter=is_part_of:'
                 . $series_id . '&sort=&limit=0&offset=0';
 
@@ -91,7 +90,7 @@ class ApiEventsClient extends OCRestClient
         return json_decode(json_encode($this->getJSON('/' . $episode_id . '/acl')), true);
     }
 
-    public function getBySeries($series_id)
+    public function getBySeries($series_id, $params = [])
     {
         $events = $this->getJSON('/?filter=is_part_of:' .
             $series_id . ',status:EVENTS.EVENTS.STATUS.PROCESSED', $params);
@@ -128,7 +127,10 @@ class ApiEventsClient extends OCRestClient
         }
 
         $acls    = self::getAclForEpisode($series_id, $episode_id);
-        $default = Config::get()->OPENCAST_HIDE_EPISODES
+        $vis_conf = CourseConfig::get($course_id)->COURSE_HIDE_EPISODES
+            ? boolval(CourseConfig::get($course_id)->COURSE_HIDE_EPISODES)
+            : \Config::get()->OPENCAST_HIDE_EPISODES;
+        $default = $vis_conf
             ? 'invisible'
             : 'visible';
 

@@ -1,10 +1,35 @@
+<? use
+    Studip\Button,
+    Studip\LinkButton
+?>
+
 <?
 $visibility_text = [
     'invisible' => $_('Video ist nur für Sie sichtbar'),
     'visible'   => $_('Video ist für Teilnehmende sichtbar'),
     'free'      => $_('Video ist für jeden sichtbar')
 ];
+$sort_orders = [
+    'mkdate0'    => $_('Datum erstellt: Aufsteigend'),
+    'mkdate1'    => $_('Datum erstellt: Absteigend'),
+    'start0'     => $_('Datum publiziert: Aufsteigend'),
+    'start1'     => $_('Datum publiziert: Absteigend'),
+    'title0'     => $_('Title: Aufsteigend'),
+    'title1'     => $_('Title: Absteigend'),
+];
 ?>
+
+<form action="<?= $controller->url_for('course/sort_order') ?>" method=post>
+    <select name="order">
+        <option selected disabled><?= $_('- Sortierung auswählen') ?></option>
+        <? foreach ($sort_orders as $key => $sort_order) : ?>
+            <option value="<?= $key ?>"><?= $sort_order ?></option>
+        <? endforeach; ?>
+    </select>
+
+        <?= Button::createAccept($_('Übernehmen'), ['title' => $_('Änderungen übernehmen')]); ?>
+
+</form>
 
 <script type="text/javascript">
     OC.visibility_text = <?= json_encode($visibility_text) ?>;
@@ -22,6 +47,20 @@ $visibility_text = [
     -->
         <ul class="oce_list list" <?= ($GLOBALS['perm']->have_studip_perm('tutor', $course_id)) ? 'id="oce_sortablelist"' : '' ?>>
             <? foreach ($ordered_episode_ids as $pos => $item) : ?>
+                <?
+                $now = time();
+                $startTime = strtotime($item['start']);
+                $endTime = strtotime($item['start']) + $item['duration'] / 1000;
+                $live = $now < $endTime;
+                $isOnAir = $startTime <= $now && $now <= $endTime;
+
+                /* today and the next full 7 days */;
+                $isUpcoming = $startTime <= (strtotime("tomorrow") + 7 * 24 * 60 * 60);
+                if ($live && !$isUpcoming) {
+                    continue;
+                }
+                ?>
+
                 <? $image = $item['presentation_preview']; ?>
                 <? if (empty($image)) : ?>
                     <? $image = ($item['preview'] != false) ? $item['preview'] : $plugin->getPluginURL() . '/images/default-preview.png'; ?>
@@ -48,19 +87,28 @@ $visibility_text = [
                                          data-src="<?= $image ?>" height="200"
                                          style="filter: grayscale(100%);">
                                 </span>
-                            <? elseif ($mayWatchEpisodes) : ?>
+                            <? elseif ($mayWatchEpisodes && (!$live || $isOnAir)) : ?>
                                 <a href="<?= URLHelper::getURL($video_url . $item['id']) ?>" target="_blank">
                                     <span class="previewimage">
                                         <img class="previewimage <?= $item['visibility'] == 'false' ? 'ocinvisible' : '' ?>"
                                              data-src="<?= $image ?>" height="200">
-                                        <img class="playbutton"
-                                             src="<?= $plugin->getPluginURL() . '/images/play.svg' ?>">
+
+                                        <? if ($live) : ?>
+                                            <img class="livebutton"
+                                                 src="<?= $plugin->getPluginURL() . '/images/live.svg' ?>">
+                                        <? else: ?>
+                                            <img class="playbutton"
+                                                 src="<?= $plugin->getPluginURL() . '/images/play.svg' ?>">
+                                        <? endif ?>
                                     </span>
                                 </a>
                             <? else : ?>
                                 <span class="previewimage">
                                     <img class="previewimage <?= $item['visibility'] == 'false' ? 'ocinvisible' : '' ?>"
                                          data-src="<?= $image ?>" height="200">
+                                    <? if ($live) : ?>
+                                        <img class="livebutton disabled" src="<?= $plugin->getPluginURL() . '/images/live.svg' ?>" style="filter: grayscale(100%);">
+                                    <? endif ?>
                                 </span>
                             <? endif ?>
                         </div>
@@ -80,8 +128,17 @@ $visibility_text = [
                             </h2>
                             <ul class="oce_contentlist">
                                 <li class="oce_list_date">
-                                    <?= $_('Aufzeichnungsdatum') ?>:
-                                    <?= date("d.m.Y H:i", strtotime($item['start'])) ?> <?= $_("Uhr") ?>
+                                    <? if ($live) : ?>
+                                        <h3>
+                                        <?= sprintf($_('Dies ist ein Livestream! Geplant: %s - %s Uhr'),
+                                            date("d.m.Y H:i", strtotime($item['start'])),
+                                            date('H:i', strtotime($item['start']) + ($item['duration'] / 1000))
+                                        ) ?>
+                                    </h3>
+                                    <? else : ?>
+                                        <?= $_('Aufzeichnungsdatum') ?>:
+                                        <?= date("d.m.Y H:i", strtotime($item['start'])) ?> <?= $_("Uhr") ?>
+                                    <? endif ?>
                                 </li>
                                 <li>
                                     <?= $_('Autor') ?>:
@@ -109,7 +166,7 @@ $visibility_text = [
                                 ); ?>
 
                                 <? if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id)) : ?>
-                                    <?= Studip\LinkButton::create($_($visibility_text[$item['visibility']] ?: $_('Unbekannte Sichtbarkeit')),
+                                    <?= $live ? '' : Studip\LinkButton::create($_($visibility_text[$item['visibility']] ?: $_('Unbekannte Sichtbarkeit')),
                                         '', [
                                             'class'           => 'oc-togglevis ocspecial oc' . ($item['visibility'] ?: 'free'),
                                             'data-episode-id' => $item['id'],
@@ -117,7 +174,7 @@ $visibility_text = [
                                             'title'           => $_('Sichtbarkeit für dieses Video ändern')
                                         ]); ?>
 
-                                    <? if (isset($events[$item['id']]) && $events[$item['id']]->has_previews) : ?>
+                                    <? if (!$live && isset($events[$item['id']]) && $events[$item['id']]->has_previews) : ?>
                                         <?= Studip\LinkButton::create(
                                             $_('Schnitteditor öffnen'),
                                             $config['service_url'] . '/admin-ng/index.html#!/events/events/' . $item['id'] . '/tools/editor',
@@ -173,7 +230,7 @@ $visibility_text = [
 
 
                                 <? if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id)) : ?>
-                                    <?= Studip\LinkButton::create(
+                                    <?= $live ? '' : Studip\LinkButton::create(
                                         $_('Entfernen'),
                                         $controller->url_for('course/remove_episode/' . get_ticket() . '/' . $item['id']),
                                         [

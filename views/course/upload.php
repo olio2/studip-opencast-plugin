@@ -4,6 +4,13 @@ use Studip\Button;
 use Studip\LinkButton;
 
 ?>
+
+<?
+$vis = CourseConfig::get($this->course_id)->COURSE_HIDE_EPISODES
+    ? boolval(CourseConfig::get($this->course_id)->COURSE_HIDE_EPISODES)
+    : \Config::get()->OPENCAST_HIDE_EPISODES;
+?>
+
 <form id="upload_form" action="#" enctype="multipart/form-data" method="post" class="default">
 
     <input type="hidden" name="series_id" value="<?= $series_id ?>">
@@ -37,8 +44,7 @@ use Studip\LinkButton;
     </Condition>
   </Rule>';
 
-if(\Config::get()->OPENCAST_HIDE_EPISODES == false){
-
+if($vis == false){
   $oc_acl.='<Rule RuleId="user_read_Permit" Effect="Permit">
     <Target>
       <Actions>
@@ -122,7 +128,7 @@ if(\Config::get()->OPENCAST_HIDE_EPISODES == false){
         $instructor_role = $this->course_id . '_Instructor';
         $learner_role = $this->course_id . '_Learner';
         $oc_acl          = str_replace('ROLE_USER_LTI_Instructor', $instructor_role, $oc_acl);
-	if(\Config::get()->OPENCAST_HIDE_EPISODES == false){
+	if($vis == false){
           $oc_acl          = str_replace('ROLE_USER_LTI_Learner', $learner_role, $oc_acl);
         }
         $oc_acl          = str_replace(["\r", "\n"], '', $oc_acl);
@@ -193,7 +199,7 @@ if(\Config::get()->OPENCAST_HIDE_EPISODES == false){
             <? if (!$workflow) : ?>
                 <p style="color:red; max-width: 48em;">
                     <?= $_(
-                        'Es wurde noch kein Standardworkflow eingestellt. Der Upload ist erst möglich nach Einstellung eines Standard- oder eines Kursspezifischen Workflows!'
+                        'Es wurde noch kein Standardworkflow eingestellt. Das Hochladen ist erst möglich nach Einstellung eines Standard- oder eines Kursspezifischen Workflows!'
                     ) ?>
                 </p>
             <? endif ?>
@@ -205,7 +211,7 @@ if(\Config::get()->OPENCAST_HIDE_EPISODES == false){
             <?= $_('Datei(en)') ?>
         </span>
         <p class="help">
-            <?= $_("Mindestens ein Video wird benötigt.") ?>
+            <?= $_("Mindestens ein Video wird benötigt. Unterstützte Formate sind .mkv, .avi, .mp4, .mpeg, .webm, .mov, .ogv, .ogg, .flv, .f4v, .wmv, .asf, .mpg, .mpeg, .ts, .3gp und .3g2.") ?>
         </p>
     </label>
 
@@ -216,10 +222,26 @@ if(\Config::get()->OPENCAST_HIDE_EPISODES == false){
         <?= LinkButton::createAdd($_('Aufzeichnung des/der Vortragende*n hinzufügen'), null, ['class' => 'oc-media-upload-add', 'data-flavor' => 'presenter/source']) ?>
         <input type="file" class="video_upload" data-flavor="presenter/source"
                accept=".avi,.mkv,.mp4,.webm,.mov,.ogg,.ogv,video/mp4,video/x-m4v,video/webm,video/ogg,video/mpeg,video/*">
+        <div style="display:none" class="invalid_media_type_warning">
+          <?= MessageBox::error(
+              $_('Die gewählte Datei kann von Opencast nicht verarbeitet werden.'),
+              [
+                  $_('Unterstützte Formate sind .mkv, .avi, .mp4, .mpeg, .webm, .mov, .ogv, .ogg, .flv, .f4v, .wmv, .asf, .mpg, .mpeg, .ts, .3gp und .3g2.')
+              ]
+          ) ?>
+        </div>
 
         <?= LinkButton::createAdd($_('Aufzeichnung der Folien hinzufügen'), null, ['class' => 'oc-media-upload-add', 'data-flavor' => 'presentation/source']) ?>
         <input type="file" class="video_upload" data-flavor="presentation/source"
                accept=".avi,.mkv,.mp4,.webm,.mov,.ogg,.ogv,video/mp4,video/x-m4v,video/webm,video/ogg,video/mpeg,video/*">
+        <div style="display:none" class="invalid_media_type_warning">
+          <?= MessageBox::error(
+              $_('Die gewählte Datei kann von Opencast nicht verarbeitet werden.'),
+              [
+                  $_('Unterstützte Formate sind .mkv, .avi, .mp4, .mpeg, .webm, .mov, .ogv, .ogg, .flv, .f4v, .wmv, .asf, .mpg, .mpeg, .ts, .3gp und .3g2.')
+              ]
+           ) ?>
+         </div>
     </div>
 
     <?= MessageBox::info(
@@ -249,7 +271,7 @@ if(\Config::get()->OPENCAST_HIDE_EPISODES == false){
 
 <div id="oc-media-upload-dialog" style="display: none;">
     <div class="oc-media-upload-dialog-content">
-        <h1 class="hide-in-dialog"><?= $_("Medien-Upload") ?></h1>
+        <h1 class="hide-in-dialog"><?= $_("Medien hochladen") ?></h1>
         <p><?= $_("Ihre Medien werden gerade hochgeladen.") ?></p>
         <div>
             <ul class="files">

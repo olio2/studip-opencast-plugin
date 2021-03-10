@@ -44,13 +44,14 @@ if ($this->connectedSeries[0]['series_id']) :
 
     $lti_link->addCustomParameter('tool', '/ltitools');
 
-    if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id, $current_user_id)) {
+    if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id, $current_user_id)
+        && (($controller->isStudyGroup() && $controller->isStudentUploadForStudyGroupActivated() || !$controller->isStudyGroup()))) {
         $role = 'Instructor';
     } else if ($GLOBALS['perm']->have_studip_perm('autor', $course_id, $current_user_id)) {
         $role = 'Learner';
     }
 
-    $lti_link->setUser($current_user_id, $role);
+    $lti_link->setUser($current_user_id, $role, True);
     $lti_link->setCourse($course_id);
     $lti_link->setResource(
         $this->connectedSeries[0]['series_id'],
@@ -75,7 +76,14 @@ if ($this->connectedSeries[0]['series_id']) :
 
         $studio_lti_link->addCustomParameter('tool', '/ltitools');
 
-        $studio_lti_link->setUser($current_user_id, 'Instructor');
+        if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id, $current_user_id)
+            && (($controller->isStudyGroup() && $controller->isStudentUploadForStudyGroupActivated() || !$controller->isStudyGroup()))) {
+            $role = 'Instructor';
+        } else if ($GLOBALS['perm']->have_studip_perm('autor', $course_id, $current_user_id)) {
+            $role = 'Learner';
+        }
+
+        $studio_lti_link->setUser($current_user_id, $role, True);
         $studio_lti_link->setCourse($course_id);
         $studio_lti_link->setResource(
             $this->connectedSeries[0]['series_id'],
@@ -131,28 +139,33 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
         );
         }
 
-        if ($can_schedule) {
-            $actions->addLink(
-                $_('Medien hochladen'),
-                $controller->url_for('course/upload'),
-                Icon::create('upload'),
-                []
-            );
 
-            if (\Config::get()->OPENCAST_ALLOW_STUDIO) {
+        if ($can_schedule) {
+            if (($controller->isStudyGroup() && $controller->isStudentUploadForStudyGroupActivated()) || !$controller->isStudyGroup()) {
                 $actions->addLink(
-                    $_('Video aufnehmen'),
-                    URLHelper::getLink(
-                        $config['service_url'] . '/studio/index.html',
-                        [
-                            'cid'             => null,
-                            'upload.seriesId' => $connectedSeries[0]['series_id'] /*,
-                            'upload.acl'      => false */
-                        ]
-                    ),
-                    Icon::create('video2'),
-                    ['target' => '_blank']
+                    $_('Medien hochladen'),
+                    $controller->url_for('course/upload'),
+                    Icon::create('upload'),
+                    []
                 );
+
+                if (\Config::get()->OPENCAST_ALLOW_STUDIO) {
+                    $actions->addLink(
+                        $_('Video aufnehmen'),
+                        URLHelper::getLink(
+                            $config['service_url'] . '/studio/index.html',
+                            [
+                                'cid'             => null,
+                                'upload.seriesId' => $connectedSeries[0]['series_id'],
+                                'upload.acl'      => 'false',
+                                'return.target'   => $controller->url_for('course/index', ['cid' => $course_id]),
+                                'return.label'    => 'Zurückkehren zu Stud.IP'
+                            ]
+                        ),
+                        Icon::create('video2'),
+                        ['target' => '_blank']
+                    );
+                }
             }
 
             // TODO: Schnittool einbinden - Passender Workflow kucken
@@ -167,18 +180,20 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
             }
         }
 
-        if ($coursevis == 'visible') {
-            $actions->addLink(
-                $_('Reiter verbergen'),
-                $controller->url_for('course/toggle_tab_visibility/' . get_ticket()),
-                Icon::create('visibility-visible')
-            );
-        } else {
-            $actions->addLink(
-                $_('Reiter sichtbar machen'),
-                $controller->url_for('course/toggle_tab_visibility/' . get_ticket()),
-                Icon::create('visibility-invisible')
-            );
+        if (!$controller->isStudyGroup()) {
+            if ($coursevis == 'visible') {
+                $actions->addLink(
+                    $_('Reiter verbergen'),
+                    $controller->url_for('course/toggle_tab_visibility/' . get_ticket()),
+                    Icon::create('visibility-visible')
+                );
+            } else {
+                $actions->addLink(
+                    $_('Reiter sichtbar machen'),
+                    $controller->url_for('course/toggle_tab_visibility/' . get_ticket()),
+                    Icon::create('visibility-invisible')
+                );
+            }
         }
 
         if (Config::get()->OPENCAST_SHOW_TOS && !$GLOBALS['perm']->have_perm('root')) {
@@ -230,24 +245,93 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
                     'title' => $_('Downloads sind momentan verboten.')
                 ]
             );
+=====
+        if (!$controller->isStudyGroup()) {
+            if ($controller->isDownloadAllowed()) {
+                $actions->addLink(
+                    $_('Downloads verbieten'),
+                    $controller->url_for('course/disallow_download/' . get_ticket()),
+                    Icon::create('download+accept'),
+                    [
+                        'title' => $_('Downloads sind momentan erlaubt.')
+                    ]
+                );
+            } else {
+                $actions->addLink(
+                    $_('Downloads erlauben'),
+                    $controller->url_for('course/allow_download/' . get_ticket()),
+                    Icon::create('download+decline'),
+                    [
+                        'title' => $_('Downloads sind momentan verboten.')
+                    ]
+                );
+            }
+
+            if ($controller->isStudentUploadEnabled()) {
+                $actions->addLink(
+                    $_('Hochladen durch Studierende verbieten'),
+                    $controller->url_for('course/disallow_students_upload/' . get_ticket()),
+                    Icon::create('upload+accept'),
+                    [
+                        'title' => $_('Das Hochladen durch Studierende ist momentan erlaubt.')
+                    ]
+                );
+            } else {
+                $actions->addLink(
+                    $_('Hochladen durch Studierende erlauben'),
+                    $controller->url_for('course/allow_students_upload/' . get_ticket()),
+                    Icon::create('upload'),
+                    [
+                        'title' => $_('Das Hochladen durch Studierende ist momentan verboten.')
+                    ]
+                );
+            }
+
+            if (!$controller->isStudyGroup()) {
+                $vis = CourseConfig::get($this->course_id)->COURSE_HIDE_EPISODES
+                    ? boolval(CourseConfig::get($this->course_id)->COURSE_HIDE_EPISODES)
+                    : \Config::get()->OPENCAST_HIDE_EPISODES;
+                if ($vis) {
+                    $actions->addLink(
+                        $_('Neue Videos für alle Teilnehmenden sichtbar schalten'),
+                        $controller->url_for('course/course_visibility/' . get_ticket() . '/' . !$vis),
+                        Icon::create('visibility-invisible'),
+                        [
+                            'title' => $_('Neue Medien sind momentan standardmäßig nur für Lehrende sichtbar.')
+                        ]
+                    );
+                } else {
+                    $actions->addLink(
+                        $_('Neue Videos nur für Lehrende sichtbar schalten'),
+                        $controller->url_for('course/course_visibility/' . get_ticket() . '/' . !$vis),
+                        Icon::create('visibility-visible'),
+                        [
+                            'title' => $_('Neue Medien sind momentan standardmäßig für alle Teilnehmenden der Veranstaltung sichtbar.')
+                        ]
+                    );
+                }
+            }
+>>>>>>> upstream/master
         }
 */
     } else {
-        $actions->addLink(
-            $_('Neue Series anlegen'),
-            $controller->url_for('course/create_series'),
-            Icon::create('tools')
-        );
-
-        if ($GLOBALS['perm']->have_perm('root')) {
+        if (!$controller->isStudyGroup()) {
             $actions->addLink(
-                $_('Vorhandene Series verknüpfen'),
-                $controller->url_for('course/config'),
-                Icon::create('group'),
-                [
-                    'data-dialog' => 'width=550;height=500'
-                ]
+                $_('Neue Series anlegen'),
+                $controller->url_for('course/create_series'),
+                Icon::create('tools')
             );
+
+            if ($GLOBALS['perm']->have_perm('root')) {
+                $actions->addLink(
+                    $_('Vorhandene Series verknüpfen'),
+                    $controller->url_for('course/config'),
+                    Icon::create('group'),
+                    [
+                        'data-dialog' => 'width=550;height=500'
+                    ]
+                );
+            }
         }
     }
 
@@ -276,12 +360,27 @@ Helpbar::get()->addLink('Bei Problemen: ' . $GLOBALS['UNI_CONTACT'], 'mailto:' .
         <? if ($this->config_error) : ?>
             <?= MessageBox::error($_('Für aktuell verknüpfte Serie ist eine fehlerhafte Konfiguration hinterlegt!')) ?>
         <? else : ?>
-            <?= MessageBox::info($_('Sie haben noch keine Series aus Opencast mit dieser Veranstaltung verknüpft. Bitte erstellen Sie eine neue Series oder verknüpfen eine bereits vorhandene Series.')) ?>
+            <? if ($GLOBALS['perm']->have_perm('root')) : ?>
+                <?= MessageBox::info($_('Sie haben noch keine Series aus Opencast mit dieser Veranstaltung verknüpft. Bitte erstellen Sie eine neue Series oder verknüpfen eine bereits vorhandene Series.')) ?>
+            <? else : ?>
+                <?= MessageBox::info($_('Sie haben noch keine Series aus Opencast mit dieser Veranstaltung verknüpft. Bitte erstellen Sie eine neue Series.')) ?>
+            <? endif ?>
         <? endif; ?>
     <? else: ?>
         <?= MessageBox::info($_('Es wurden bislang keine Vorlesungsaufzeichnungen bereitgestellt.')); ?>
     <? endif; ?>
 <? endif; ?>
+
+<? if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id)) : ?>
+    <? foreach ($GLOBALS['SEM_CLASS'] as $sem_class) : ?>
+        <? if ($sem_class['name'] == 'Studiengruppen') : ?>
+            <? if (!$sem_class['modules']['OpenCast']['activated'] && $sem_class['modules']['OpenCast']['sticky']) : ?>
+                <?= MessageBox::info($_('Das Opencast Plugin ist momentan nicht für Studiengruppen aktiv. Wenden Sie sich an einen Admin, um das Problem zu beheben.'));
+                    break; ?>
+            <? endif ?>
+        <? endif ?>
+    <? endforeach ?>
+<? endif ?>
 
 <!--- hidden -->
 <div class="hidden" id="course_id" data-courseId="<?= $course_id ?>"></div>

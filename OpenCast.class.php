@@ -131,7 +131,7 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
     public function getIconNavigation($course_id, $last_visit, $user_id = null)
     {
         $ocmodel = new OCCourseModel($course_id);
-        if (!$this->isActivated($course_id) || $ocmodel->getSeriesVisibility() != 'visible') {
+        if (!$this->isActivated($course_id)) {
             return;
         }
 
@@ -211,6 +211,7 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
         ));
 
         $overview = new Navigation($this->_('Aufzeichnungen'));
+<<<<<<< HEAD
         $overview->setURL(PluginEngine::getURL('opencast/course/index'));
 
         $scheduler = new Navigation($this->_('Aufzeichnungen planen'));
@@ -220,11 +221,47 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
 
 
         if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastSchedule')) {
+=======
+        $overview->setURL(PluginEngine::getURL($this, [], 'course/index'));
+        $main->addSubNavigation('overview', $overview);
+
+        $course = Seminar::getInstance($course_id);
+
+        if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id)
+            && !$course->isStudygroup()) {
+            $scheduler = new Navigation($this->_('Aufzeichnungen planen'));
+            $scheduler->setURL(PluginEngine::getURL($this, [], 'course/scheduler'));
+
+>>>>>>> upstream/master
             $series_metadata = OCSeminarSeries::getSeries($course_id);
             if ($series_metadata && $series_metadata[0]['schedule'] == '1') {
                 $main->addSubNavigation('scheduler', $scheduler);
             }
         }
+
+        $studyGroupId = CourseConfig::get($course_id)->OPENCAST_MEDIAUPLOAD_STUDY_GROUP;
+
+        if (!empty($studyGroupId)) {
+            foreach ($GLOBALS['SEM_CLASS'] as $id => $sem_class) {
+                if ($sem_class['name'] == 'Studiengruppen') {
+                    $isActive = $sem_class['modules']['OpenCast']['activated'] || !$sem_class['modules']['OpenCast']['sticky'];
+                    break;
+                }
+            }
+            if ($isActive) {
+                $studyGroup = new Navigation($this->_('Zur Studiengruppe'));
+                $studyGroup->setURL(PluginEngine::getURL($this, ['cid' => $$linkedCourseId], 'course/redirect_studygroup/' . $studyGroupId));
+                $main->addSubNavigation('studygroup', $studyGroup);
+            }
+        }
+
+        $linkedCourseId = CourseConfig::get($course_id)->OPENCAST_MEDIAUPLOAD_LINKED_COURSE;
+        if (!empty($linkedCourseId)) {
+            $linkedCourse = new Navigation($this->_('Zur verknüpften Veranstaltung'));
+            $linkedCourse->setURL(PluginEngine::getURL($this, ['cid' => $linkedCourseId], 'course/index'));
+            $main->addSubNavigation('linkedcourse', $linkedCourse);
+        }
+
         if ($ocmodel->getSeriesVisibility() == 'visible' || $GLOBALS['perm']->have_studip_perm('tutor', $course_id)) {
             return ['opencast' => $main];
         }
@@ -272,7 +309,7 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
             $role = 'Learner';
         }
 
-        $lti_link->setUser($current_user_id, $role);
+        $lti_link->setUser($current_user_id, $role, True);
         $lti_link->setCourse($course_id);
         $lti_link->setResource(
             $connectedSeries,
@@ -341,13 +378,19 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
     {
         $metadata = parent::getMetadata();
 
-        if (version_compare($GLOBALS['SOFTWARE_VERSION'], '4', '<=')) {
-            foreach ($metadata as $key => $value) {
-                if (is_string($value)) {
-                    $metadata[$key] = utf8_decode($value);
-                }
-            }
-        }
+        $metadata['pluginname'] = $this->_("Opencast");
+        $metadata['displayname'] = $this->_("Opencast");
+
+        $metadata['description'] = $this->_("Mit diesem Tool können Videos aus dem Vorlesungsaufzeichnungssystem "
+            . "(Opencast) mit einer Stud.IP-Veranstaltung verknüpft werden. Die Aufzeichnungen werden in "
+            . "einem eingebetteten Player in Stud.IP zur Verfügung gestellt. Darüberhinaus ist es mit "
+            . "dieser Integration möglich die komplette Aufzeichnungsplanung für eine Veranstaltung "
+            . "abzubilden. Voraussetzung hierfür sind entsprechende Einträge im Ablaufplan und eine "
+            . "gebuchte Ressource mit einem Opencast-Capture-Agent. Vorhandene Medien können bei "
+            . "Bedarf nachträglich über die Hochladen-Funktion zur verknüpften Serie hinzugefügt werden."
+        );
+
+        $metadata['summary'] = $this->_("Vorlesungsaufzeichnung");
 
         return $metadata;
     }
@@ -386,5 +429,24 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
     public function getPluginName()
     {
         return 'Opencast';
+    }
+
+    /**
+     * Returns whether the plugin may be activated in a certain context.
+     *
+     * @param Range $context
+     * @return bool
+     */
+    public function isActivatableForContext(Range $context)
+    {
+        if (!$GLOBALS['perm']->have_perm('root') &&
+            $context->getRangeType() === 'course' && 
+            $context->getSemClass()['studygroup_mode']) {
+            return false;
+        }
+        if ($context->getRangeType() === 'institute') {
+            return false;
+        }
+        return true;
     }
 }

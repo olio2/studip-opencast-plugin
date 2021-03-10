@@ -20,13 +20,13 @@ use Studip\Button,
         '</p>';
         ?>
         <label>
-            <?= $_('Workflow für Uploads'); ?>
+            <?= $_('Workflow für hochgeladene Medien'); ?>
 
             <select name="oc_course_uploadworkflow">
                 <? foreach ($workflows as $workflow) : ?>
                     <option value="<?= $workflow['id'] ?>" title="<?= $workflow['description'] ?>"
                         <?= ($uploadwf['workflow_id'] == $workflow['id']) ? 'selected' : '' ?>>
-                        <?= $workflow['title'] ?>
+                        <?= $workflow['title'] ?> (<?= $workflow['id'] ?>)
                     </option>
                 <? endforeach; ?>
             </select>
