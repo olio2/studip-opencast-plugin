@@ -370,7 +370,7 @@ class CourseController extends OpencastController
 
     public function schedule_action($resource_id, $termin_id)
     {
-        if ($GLOBALS['perm']->have_studip_perm('dozent', $this->course_id)) {
+        if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastSchedule')) {
             $scheduler_client = SchedulerClient::getInstance();
             if ($scheduler_client->scheduleEventForSeminar($this->course_id, $resource_id, $termin_id)) {
                 PageLayout::postSuccess($this->_('Aufzeichnung wurde geplant.'));
@@ -406,7 +406,7 @@ class CourseController extends OpencastController
     public function unschedule_action($resource_id, $termin_id)
     {
         $this->course_id = Request::get('cid');
-        if ($GLOBALS['perm']->have_studip_perm('dozent', $this->course_id)) {
+        if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastSchedule')) {
             $scheduler_client = SchedulerClient::getInstance();
             if ($scheduler_client->deleteEventForSeminar($this->course_id, $resource_id, $termin_id)) {
                 PageLayout::postSuccess($this->_('Die geplante Aufzeichnung wurde entfernt'));
@@ -585,7 +585,7 @@ class CourseController extends OpencastController
         // try to set higher time limit to prevent breaking the bulk update in the middle of it
         set_time_limit(1800);
         $action = Request::get('action');
-        if ($GLOBALS['perm']->have_studip_perm('dozent', $this->course_id)) {
+        if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastSchedule')) {
             $dates = Request::getArray('dates');
             foreach ($dates as $termin_id => $resource_id) {
                 switch ($action) {
@@ -688,7 +688,7 @@ class CourseController extends OpencastController
                 $video_url = $this->search_client->getBaseURL() . "/engage/theodul/ui/core.html?id=" . $active_id;
             }
 
-            $perm  = $GLOBALS['perm']->have_studip_perm('dozent', $this->course_id);
+            $perm  = $GLOBALS['perm']->have_studip_perm('tutor', $this->course_id);
             $video = [
                 'url'    => $video_url,
                 'image'  => $current_preview,
@@ -734,7 +734,7 @@ class CourseController extends OpencastController
 
     public function toggle_schedule_action($ticket)
     {
-        if (check_ticket($ticket) && $GLOBALS['perm']->have_studip_perm('dozent', $this->course_id)) {
+        if (check_ticket($ticket) && $GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
             $occourse = new OCCourseModel($this->course_id);
             $occourse->toggleSeriesSchedule();
         }
