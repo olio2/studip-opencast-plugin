@@ -188,7 +188,7 @@ $sort_orders = [
                                 <? endif; ?>
 
 
-                                <? if ($controller->isDownloadAllowed()) : ?>
+                                <? if ($controller->isDownloadAllowed() && false) : ?>
                                     <? if (!empty($item['presenter_download'])
                                         || !empty($item['presentation_download'])
                                         || !empty($item['audio_download'])

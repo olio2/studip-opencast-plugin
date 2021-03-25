@@ -226,27 +226,10 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
             }
         }
 
-/*
-        if ($controller->isDownloadAllowed()) {
-            $actions->addLink(
-                $_('Downloads verbieten'),
-                $controller->url_for('course/disallow_download/' . get_ticket()),
-                Icon::create('download+accept'),
-                [
-                    'title' => $_('Downloads sind momentan erlaubt.')
-                ]
-            );
-        } else {
-            $actions->addLink(
-                $_('Downloads erlauben'),
-                $controller->url_for('course/allow_download/' . get_ticket()),
-                Icon::create('download+decline'),
-                [
-                    'title' => $_('Downloads sind momentan verboten.')
-                ]
-            );
-=====
         if (!$controller->isStudyGroup()) {
+            /* not in hb
+             *
+             *
             if ($controller->isDownloadAllowed()) {
                 $actions->addLink(
                     $_('Downloads verbieten'),
@@ -266,6 +249,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
                     ]
                 );
             }
+            */
 
             if ($controller->isStudentUploadEnabled()) {
                 $actions->addLink(
@@ -311,9 +295,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
                     );
                 }
             }
->>>>>>> upstream/master
         }
-*/
     } else {
         if (!$controller->isStudyGroup()) {
             $actions->addLink(
