@@ -216,17 +216,6 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
         ));
 
         $overview = new Navigation($this->_('Aufzeichnungen'));
-<<<<<<< HEAD
-        $overview->setURL(PluginEngine::getURL('opencast/course/index'));
-
-        $scheduler = new Navigation($this->_('Aufzeichnungen planen'));
-        $scheduler->setURL(PluginEngine::getURL('opencast/course/scheduler'));
-
-        $main->addSubNavigation('overview', $overview);
-
-
-        if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastSchedule')) {
-=======
         $overview->setURL(PluginEngine::getURL($this, [], 'course/index'));
         $main->addSubNavigation('overview', $overview);
 
@@ -236,8 +225,6 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
             && !$course->isStudygroup()) {
             $scheduler = new Navigation($this->_('Aufzeichnungen planen'));
             $scheduler->setURL(PluginEngine::getURL($this, [], 'course/scheduler'));
-
->>>>>>> upstream/master
             $series_metadata = OCSeminarSeries::getSeries($course_id);
             if ($series_metadata && $series_metadata[0]['schedule'] == '1') {
                 $main->addSubNavigation('scheduler', $scheduler);
