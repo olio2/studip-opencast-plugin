@@ -269,7 +269,7 @@ class CourseController extends OpencastController
 
     public function config_action()
     {
-        if (!($GLOBALS['perm']->have_perm('root') || ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastChangeSeries')))) {
+        if (!($GLOBALS['perm']->have_perm('root') || ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastAdmin')))) {
             throw new AccessDeniedException();
         }
         if (Request::isXhr()) {

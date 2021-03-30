@@ -131,7 +131,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
     $upload  = '';
 
     if (!empty($connectedSeries)) {
-        if ($GLOBALS['perm']->have_perm('root') || ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastChangeSeries'))) {	
+        if ($GLOBALS['perm']->have_perm('root') || ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastAdmin'))) {	
         $actions->addLink(
             $_('Verknüpfung aufheben'),
             $controller->url_for('course/remove_series/' . get_ticket()),
@@ -311,7 +311,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
                 Icon::create('tools')
             );
 
-            if ($GLOBALS['perm']->have_perm('root') || ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastChangeSeries'))) {
+            if ($GLOBALS['perm']->have_perm('root') || ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastAdmin'))) {
                 $actions->addLink(
                     $_('Vorhandene Series verknüpfen'),
                     $controller->url_for('course/config'),
