@@ -255,6 +255,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
             */
 
             if (!$controller->isStudygroup() || ($controller->isStudyGroup() && $isStudentUploadForStudyGroupActivated && !CourseConfig::get($course_id)->OPENCAST_MEDIAUPLOAD_LINKED_COURSE)) {
+/*
                 if ($controller->isStudentUploadEnabled()) {
                     $actions->addLink(
                         $_('Hochladen durch Studierende verbieten'),
@@ -274,6 +275,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
                         ]
                     );
                 }
+*/
             }
 
             if (!$controller->isStudyGroup() || Config::get()->OPENCAST_ALLOW_STUDYGROUP_CONF ) {
@@ -361,7 +363,7 @@ Helpbar::get()->addLink('Bei Problemen: ' . $GLOBALS['UNI_CONTACT'], 'mailto:' .
 <? if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id)) : ?>
     <? foreach ($GLOBALS['SEM_CLASS'] as $sem_class) : ?>
         <? if ($sem_class['name'] == 'Studiengruppen') : ?>
-            <? if (!$sem_class['modules']['OpenCast']['activated'] && $sem_class['modules']['OpenCast']['sticky']) : ?>
+            <? if (false && !$sem_class['modules']['OpenCast']['activated'] && $sem_class['modules']['OpenCast']['sticky']) : ?>
                 <?= MessageBox::info($_('Das Opencast Plugin ist momentan nicht für Studiengruppen aktiv. Wenden Sie sich an einen Admin, um das Problem zu beheben.'));
                     break; ?>
             <? endif ?>
