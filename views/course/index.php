@@ -255,7 +255,7 @@ if ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
             */
 
 	    if (!$controller->isStudygroup() || ($controller->isStudyGroup() && $isStudentUploadForStudyGroupActivated && !CourseConfig::get($course_id)->OPENCAST_MEDIAUPLOAD_LINKED_COURSE)) {
-              if($GLOBALS['perm']->have_perm('root') || ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastAdmin'))){
+              if($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)){
                 if ($controller->isStudentUploadEnabled()) {
                     $actions->addLink(
                         $_('Hochladen durch Studierende verbieten'),
