@@ -269,7 +269,7 @@ class CourseController extends OpencastController
 
     public function config_action()
     {
-        if (!($GLOBALS['perm']->have_perm('root') || ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastAdmin')))) {
+        if (!($GLOBALS['perm']->have_perm('root') || ($GLOBALS['perm']->have_studip_perm('tutor', $this->course_id) && RolePersistence::isAssignedRole($GLOBALS['user']->id, 'OpencastChangeSeries')))) {
             throw new AccessDeniedException();
         }
         if (Request::isXhr()) {
@@ -1028,14 +1028,22 @@ class CourseController extends OpencastController
         foreach ($course->members as $member) {
             if ($studyGroup->members->findOneBy('user_id', $member->user_id)) {
                 $currentStudyGroupMember = CourseMember::find([$studyGroup->getId(), $member->user_id]);
-                $currentStudyGroupMember['status'] = 'dozent';
+                if($GLOBALS['perm']->have_studip_perm('dozent', $course->getId(),$member->user_id)){
+                  $currentStudyGroupMember['status'] = 'dozent';
+                } else {
+                  $currentStudyGroupMember['status'] = 'tutor'; 
+                }
                 $currentStudyGroupMember->store();
                 continue;
             }
             $studyGroupMember = new CourseMember();
             $studyGroupMember['user_id'] = $member->user_id;
             $studyGroupMember['seminar_id'] = $studyGroup->getId();
-            $studyGroupMember['status'] = 'dozent';
+            if($GLOBALS['perm']->have_studip_perm('dozent', $course->getId(),$member->user_id)){
+              $studyGroupMember['status'] = 'dozent';
+            } else {
+              $studyGroupMember['status'] = 'tutor';
+            }
             $studyGroupMember->store();
         }
     }
@@ -1120,7 +1128,7 @@ class CourseController extends OpencastController
 
     public function course_visibility_action($ticket, $visibility)
     {
-        if (check_ticket($ticket) && $GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
+	if (check_ticket($ticket) && $GLOBALS['perm']->have_studip_perm('tutor', $this->course_id)) {
             CourseConfig::get($this->course_id)->store('COURSE_HIDE_EPISODES', $visibility);
         }
         $this->redirect('course/index/false');

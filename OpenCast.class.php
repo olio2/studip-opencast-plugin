@@ -133,6 +133,9 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
         $ocmodel = new OCCourseModel($course_id);
         if (!$this->isActivated($course_id)) {
             return;
+	}
+        if ($ocmodel->getSeriesVisibility() == 'invisible') {
+            return;
         }
 
         $this->image_path = $this->getPluginURL() . '/images/';
@@ -194,7 +197,7 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
     {
         if (!$this->isActivated($course_id) || !OCModel::getConfigurationstate()) {
             return;
-        }
+	}
 
         $ocmodel = new OCCourseModel($course_id);
         $title   = 'Opencast';
@@ -438,6 +441,9 @@ class OpenCast extends StudipPlugin implements SystemPlugin, StandardPlugin
         }
         if ($context->getRangeType() === 'institute') {
             return false;
+        }
+	if ($context->getRangeType() === 'course') {
+          if($context->getSemClass()['studygroup_mode']) return false;
         }
         return true;
     }

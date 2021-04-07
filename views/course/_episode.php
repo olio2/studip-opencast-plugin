@@ -226,7 +226,7 @@ $sort_orders = [
                                 <? endif ?>
 
 
-                                <? if ($GLOBALS['perm']->have_studip_perm('tutor', $course_id)) : ?>
+                                <? if (($controller->isStudyGroup() && $GLOBALS['perm']->have_studip_perm('dozent', $course_id)) || (!$controller->isStudyGroup() && $GLOBALS['perm']->have_studip_perm('tutor', $course_id))) : ?>
                                     <?= $live ? '' : Studip\LinkButton::create(
                                         $_('Entfernen'),
                                         $controller->url_for('course/remove_episode/' . get_ticket() . '/' . $item['id']),
