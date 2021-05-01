@@ -58,7 +58,7 @@ if ($this->connectedSeries[0]['series_id']) :
         $role = 'Learner';
     }
 
-    $lti_link->setUser($current_user_id, $role, True);
+    $lti_link->setUser($current_user_id, $role);
     $lti_link->setCourse($course_id);
     $lti_link->setResource(
         $this->connectedSeries[0]['series_id'],
@@ -90,7 +90,7 @@ if ($this->connectedSeries[0]['series_id']) :
             $role = 'Learner';
         }
 
-        $studio_lti_link->setUser($current_user_id, $role, True);
+        $studio_lti_link->setUser($current_user_id, $role);
         $studio_lti_link->setCourse($course_id);
         $studio_lti_link->setResource(
             $this->connectedSeries[0]['series_id'],
